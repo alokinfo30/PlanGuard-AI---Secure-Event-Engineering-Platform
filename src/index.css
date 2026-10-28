@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --app-font-scale: 1rem;
+  }
+
+  html.text-scale-normal {
+    font-size: 16px;
+  }
+
+  html.text-scale-large {
+    font-size: 18.5px;
+  }
+
+  html.text-scale-xlarge {
+    font-size: 21px;
+  }
+
+  /* High contrast mode enhancements for WCAG 2.1 AAA */
+  html.high-contrast-mode {
+    filter: contrast(125%);
+  }
+
+  html.high-contrast-mode body {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+  }
+
+  html.high-contrast-mode .bg-slate-900,
+  html.high-contrast-mode .bg-slate-950,
+  html.high-contrast-mode .bg-slate-800 {
+    background-color: #050505 !important;
+    border-color: #ffffff !important;
+  }
+
+  html.high-contrast-mode button,
+  html.high-contrast-mode a,
+  html.high-contrast-mode input,
+  html.high-contrast-mode select,
+  html.high-contrast-mode textarea {
+    outline: 2px solid #ffffff !important;
+  }
+
+  /* Reduced motion */
+  html.reduce-motion *,
+  html.reduce-motion *::before,
+  html.reduce-motion *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  /* Accessible focus indicators */
+  :focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+  }
+}
+
+/* Custom scrollbar for sleek cyber look */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}

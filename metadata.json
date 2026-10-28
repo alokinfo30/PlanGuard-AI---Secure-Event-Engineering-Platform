@@ -1,0 +1,6 @@
+{
+  "name": "PlanGuard AI - Secure Event Engineering Platform",
+  "description": "Zero-trust, AI-orchestrated event planning architecture with hardened prompt boundaries, mathematical financial modeling, automated milestone timelines, and interactive security test matrix.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
