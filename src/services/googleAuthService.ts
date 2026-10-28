@@ -13,22 +13,40 @@ export const GOOGLE_PROJECT_ID = '188621645679';
 
 export const PRECONFIGURED_TEST_ACCOUNTS: GoogleUser[] = [
   {
-    id: 'user_alokinfo_proict',
+    id: 'user_enterprise_corp',
     email: 'alokinfo.proict@gmail.com',
-    name: 'Alok (Host & Enterprise Lead)',
+    name: 'Alok (Global Tech Summit)',
     role: 'Host',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
     verified: true,
     tenantId: 'user_enterprise_corp',
   },
   {
-    id: 'user_alokinfo30',
+    id: 'user_secure_alice',
     email: 'alokinfo30@gmail.com',
-    name: 'Alok (Security Auditor & Guest)',
+    name: 'Alice & David (Botanical Wedding)',
     role: 'Guest',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=120&auto=format&fit=crop&q=80',
     verified: true,
     tenantId: 'user_secure_alice',
+  },
+  {
+    id: 'user_alokinfo_proict_bday',
+    email: 'alokinfo.proict@gmail.com',
+    name: 'Marcus (30th Cyberpunk Birthday)',
+    role: 'Host',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+    verified: true,
+    tenantId: 'user_alokinfo_proict',
+  },
+  {
+    id: 'user_alokinfo30_comm',
+    email: 'alokinfo30@gmail.com',
+    name: 'Greenwood (Spring Community Fest)',
+    role: 'Administrator',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
+    verified: true,
+    tenantId: 'user_alokinfo30',
   },
 ];
 

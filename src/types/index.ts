@@ -71,6 +71,73 @@ export interface GatewayStatus {
   serverTime: string;
 }
 
+export interface ColorSwatch {
+  name: string;
+  hex: string;
+  usage: string;
+}
+
+export interface SignatureItem {
+  item: string;
+  description: string;
+  tag: 'food' | 'drink' | 'dessert' | 'cocktail';
+}
+
+export interface GuestExperience {
+  title: string;
+  description: string;
+  phase: string;
+}
+
+export interface DecorConcept {
+  area: string;
+  concept: string;
+  diyOrRentalTip: string;
+}
+
+export interface PersonalizedIdeas {
+  themeName: string;
+  tagline: string;
+  conceptOverview: string;
+  colorPalette: ColorSwatch[];
+  signatureFoodDrinks: SignatureItem[];
+  guestExperiences: GuestExperience[];
+  decorConcepts: DecorConcept[];
+}
+
+export interface VendorChecklistItem {
+  id: string;
+  task: string;
+  category: string;
+  deadlineWeeksBefore: number;
+  dueDate: string;
+  priority: 'high' | 'medium' | 'low';
+  estimatedCost: number;
+  actualCost?: number;
+  status: 'pending' | 'contacted' | 'signed' | 'paid';
+  assignedVendorName?: string;
+  notes?: string;
+}
+
+export interface AssistantPlanResult {
+  eventTitle: string;
+  eventType: 'Wedding' | 'Birthday' | 'Community' | string;
+  targetDate: string;
+  budgetTotal: number;
+  guestCount: number;
+  perAttendeeCost: number;
+  contingencyReserve: number;
+  personalizedIdeas: PersonalizedIdeas;
+  categories: EventCategory[];
+  milestones: Milestone[];
+  vendorChecklist: VendorChecklistItem[];
+  securityGuarantee: {
+    mathEngine: string;
+    promptShield: string;
+    model: string;
+  };
+}
+
 export interface SecurityTestResult {
   testId: string;
   timestamp: string;

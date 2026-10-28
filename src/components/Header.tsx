@@ -10,7 +10,9 @@ import {
   Menu,
   X,
   Download,
-  KeyRound
+  KeyRound,
+  Cloud,
+  RefreshCw
 } from 'lucide-react';
 import { GatewayStatus } from '../types';
 import { GoogleUser } from '../services/googleAuthService';
@@ -25,6 +27,9 @@ interface HeaderProps {
   onOpenExport: () => void;
   onOpenGoogleAuth: () => void;
   currentUser: GoogleUser | null;
+  lastSyncedAt?: Date | null;
+  isSyncing?: boolean;
+  isOnline?: boolean;
   isInstallable: boolean;
   isInstalled: boolean;
   activeTab: string;
@@ -41,25 +46,54 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenExport,
   onOpenGoogleAuth,
   currentUser,
+  lastSyncedAt = null,
+  isSyncing = false,
+  isOnline = true,
   isInstallable,
   isInstalled,
   activeTab,
   setActiveTab,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [syncTimeAgo, setSyncTimeAgo] = React.useState('Just now');
+
+  React.useEffect(() => {
+    const updateSyncLabel = () => {
+      if (!lastSyncedAt) {
+        setSyncTimeAgo('Connected');
+        return;
+      }
+      const diffSec = Math.floor((Date.now() - lastSyncedAt.getTime()) / 1000);
+      if (diffSec < 5) {
+        setSyncTimeAgo('Synced just now');
+      } else if (diffSec < 60) {
+        setSyncTimeAgo(`Synced ${diffSec}s ago`);
+      } else {
+        const diffMin = Math.floor(diffSec / 60);
+        setSyncTimeAgo(`Synced ${diffMin}m ago`);
+      }
+    };
+
+    updateSyncLabel();
+    const interval = setInterval(updateSyncLabel, 2000);
+    return () => clearInterval(interval);
+  }, [lastSyncedAt]);
 
   const tenantOptions = [
-    { id: 'user_enterprise_corp', label: 'Enterprise Corp', role: 'Tenant A (Admin)' },
-    { id: 'user_secure_alice', label: 'Alice & David Gala', role: 'Tenant B (Private)' },
-    { id: 'user_attacker_intruder', label: 'External Auditor', role: 'Tenant C (Isolated)' },
+    { id: 'user_enterprise_corp', label: 'Enterprise Summit', role: 'Host (Alok - alokinfo.proict)' },
+    { id: 'user_secure_alice', label: 'Alice & David Wedding', role: 'Guest (Alok - alokinfo30)' },
+    { id: 'user_alokinfo_proict', label: 'Marcus 30th Birthday', role: 'Host (Alok - alokinfo.proict)' },
+    { id: 'user_alokinfo30', label: 'Greenwood Community Fest', role: 'Admin (Alok - alokinfo30)' },
   ];
 
   const navItems = [
-    { id: 'blueprint', label: 'Architecture Blueprint' },
-    { id: 'financials', label: 'Module A: Financials' },
-    { id: 'timeline', label: 'Module B: Timelines & Vendors' },
-    { id: 'venues', label: 'Module C: Venues & Map' },
-    { id: 'security-matrix', label: 'Phase 4: Test Matrix' },
+    { id: 'assistant', label: 'AI Planning Studio' },
+    { id: 'checklist', label: 'Vendor Checklist' },
+    { id: 'financials', label: 'Financials & Budget' },
+    { id: 'timeline', label: 'Timeline & Agents' },
+    { id: 'venues', label: 'Venues & Map' },
+    { id: 'blueprint', label: 'Blueprint' },
+    { id: 'security-matrix', label: 'Pentest Matrix' },
   ];
 
   return (
@@ -110,6 +144,33 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Action Cluster */}
           <div className="flex items-center gap-2">
             
+            {/* Database Sync Status Indicator */}
+            <div 
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px]"
+              title="Remote database synchronization status"
+            >
+              {isSyncing ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
+                  <span className="text-cyan-300 font-mono">Syncing...</span>
+                </>
+              ) : isOnline ? (
+                <>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <Cloud className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="font-mono text-slate-300">{syncTimeAgo}</span>
+                </>
+              ) : (
+                <>
+                  <span className="h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span className="text-amber-400 font-mono">Offline</span>
+                </>
+              )}
+            </div>
+
             {/* Google Authentication Account Button */}
             <button
               onClick={onOpenGoogleAuth}

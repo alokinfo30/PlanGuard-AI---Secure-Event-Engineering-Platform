@@ -11,9 +11,11 @@ import { FinancialModule } from './components/modules/FinancialModule';
 import { TimelineVendorModule } from './components/modules/TimelineVendorModule';
 import { VenueMapModule } from './components/modules/VenueMapModule';
 import { TestMatrixModule } from './components/modules/TestMatrixModule';
+import { GenAIAssistantModule } from './components/modules/GenAIAssistantModule';
+import { VendorChecklistModule } from './components/modules/VendorChecklistModule';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { useAccessibility } from './hooks/useAccessibility';
-import { GatewayStatus, Milestone, EventCategory, Vendor, Venue } from './types';
+import { GatewayStatus, Milestone, EventCategory, Vendor, Venue, AssistantPlanResult } from './types';
 import { 
   GoogleUser, 
   PRECONFIGURED_TEST_ACCOUNTS 
@@ -28,14 +30,19 @@ import {
   Smartphone,
   Eye,
   WifiOff,
-  Download
+  Download,
+  Sparkles,
+  CheckSquare
 } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('blueprint');
+  const [activeTab, setActiveTab] = useState<string>('assistant');
   const [activeTenant, setActiveTenant] = useState<string>('user_enterprise_corp');
+  const [activePlan, setActivePlan] = useState<AssistantPlanResult | null>(null);
   const [gatewayStatus, setGatewayStatus] = useState<GatewayStatus | null>(null);
   const [isRefreshingGateway, setIsRefreshingGateway] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(new Date());
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Authenticated Google User state
   const [currentUser, setCurrentUser] = useState<GoogleUser | null>(PRECONFIGURED_TEST_ACCOUNTS[0]);
@@ -68,6 +75,7 @@ export default function App() {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
+      setLastSyncedAt(new Date());
       announce('Internet connection restored.');
     };
     const handleOffline = () => {
@@ -87,6 +95,7 @@ export default function App() {
   // Fetch Gateway Status & Telemetry
   const fetchGatewayStatus = useCallback(async () => {
     setIsRefreshingGateway(true);
+    setIsSyncing(true);
     try {
       const res = await fetch('/api/gateway/status', {
         headers: {
@@ -96,11 +105,13 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         setGatewayStatus(data);
+        setLastSyncedAt(new Date());
       }
     } catch (err) {
       console.error('Failed to query gateway status:', err);
     } finally {
       setIsRefreshingGateway(false);
+      setIsSyncing(false);
     }
   }, [activeTenant]);
 
@@ -137,18 +148,24 @@ export default function App() {
         setIsExportOpen(false);
         setIsGoogleAuthOpen(false);
       } else if (e.key === '1') {
-        setActiveTab('blueprint');
-        announce('Switched to Architecture Blueprint');
+        setActiveTab('assistant');
+        announce('Switched to AI Planning Studio');
       } else if (e.key === '2') {
+        setActiveTab('checklist');
+        announce('Switched to Vendor Checklist');
+      } else if (e.key === '3') {
         setActiveTab('financials');
         announce('Switched to Module A: Financials');
-      } else if (e.key === '3') {
+      } else if (e.key === '4') {
         setActiveTab('timeline');
         announce('Switched to Module B: Timelines & Vendors');
-      } else if (e.key === '4') {
+      } else if (e.key === '5') {
         setActiveTab('venues');
         announce('Switched to Module C: Venues & Map');
-      } else if (e.key === '5') {
+      } else if (e.key === '6') {
+        setActiveTab('blueprint');
+        announce('Switched to Architecture Blueprint');
+      } else if (e.key === '7') {
         setActiveTab('security-matrix');
         announce('Switched to Phase 4: Test Matrix');
       } else if (e.key.toLowerCase() === 's') {
@@ -197,6 +214,9 @@ export default function App() {
         onOpenExport={() => setIsExportOpen(true)}
         onOpenGoogleAuth={() => setIsGoogleAuthOpen(true)}
         currentUser={currentUser}
+        lastSyncedAt={lastSyncedAt}
+        isSyncing={isSyncing}
+        isOnline={isOnline}
         isInstallable={isInstallable}
         isInstalled={isInstalled}
         activeTab={activeTab}
@@ -213,10 +233,23 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 focus:outline-none" tabIndex={-1}>
-        {activeTab === 'blueprint' && <ArchitectureBlueprintModule />}
+        {activeTab === 'assistant' && (
+          <GenAIAssistantModule 
+            activeTenant={activeTenant}
+            onPlanApplied={(plan) => setActivePlan(plan)}
+            onNavigateToTab={(tab) => setActiveTab(tab)}
+          />
+        )}
+        {activeTab === 'checklist' && (
+          <VendorChecklistModule 
+            activeTenant={activeTenant}
+            onNavigateToTab={(tab) => setActiveTab(tab)}
+          />
+        )}
         {activeTab === 'financials' && <FinancialModule activeTenant={activeTenant} />}
         {activeTab === 'timeline' && <TimelineVendorModule activeTenant={activeTenant} />}
         {activeTab === 'venues' && <VenueMapModule activeTenant={activeTenant} />}
+        {activeTab === 'blueprint' && <ArchitectureBlueprintModule />}
         {activeTab === 'security-matrix' && (
           <TestMatrixModule 
             activeTenant={activeTenant} 
@@ -247,13 +280,23 @@ export default function App() {
         aria-label="Mobile Navigation Bar"
       >
         <button
-          onClick={() => setActiveTab('blueprint')}
+          onClick={() => setActiveTab('assistant')}
           className={`flex flex-col items-center gap-1 p-1 rounded-lg ${
-            activeTab === 'blueprint' ? 'text-cyan-400 font-bold' : 'text-slate-400'
+            activeTab === 'assistant' ? 'text-indigo-400 font-bold' : 'text-slate-400'
           }`}
         >
-          <Layers className="w-4 h-4" />
-          <span>Blueprint</span>
+          <Sparkles className="w-4 h-4" />
+          <span>AI Studio</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('checklist')}
+          className={`flex flex-col items-center gap-1 p-1 rounded-lg ${
+            activeTab === 'checklist' ? 'text-amber-400 font-bold' : 'text-slate-400'
+          }`}
+        >
+          <CheckSquare className="w-4 h-4" />
+          <span>Checklist</span>
         </button>
 
         <button
@@ -263,7 +306,7 @@ export default function App() {
           }`}
         >
           <Calculator className="w-4 h-4" />
-          <span>Financials</span>
+          <span>Budget</span>
         </button>
 
         <button
@@ -284,16 +327,6 @@ export default function App() {
         >
           <MapPin className="w-4 h-4" />
           <span>Venues</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('security-matrix')}
-          className={`flex flex-col items-center gap-1 p-1 rounded-lg ${
-            activeTab === 'security-matrix' ? 'text-red-400 font-bold' : 'text-slate-400'
-          }`}
-        >
-          <ShieldAlert className="w-4 h-4" />
-          <span>Pentest</span>
         </button>
 
         <button

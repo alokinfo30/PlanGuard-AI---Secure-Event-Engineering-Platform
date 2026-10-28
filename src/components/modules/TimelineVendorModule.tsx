@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar, 
   Clock, 
@@ -94,6 +94,34 @@ export const TimelineVendorModule: React.FC<TimelineVendorModuleProps> = ({
   const [newVendorNotes, setNewVendorNotes] = useState('');
   const [newVendorQuote, setNewVendorQuote] = useState('12000');
   const [sanitizationAlert, setSanitizationAlert] = useState<string | null>(null);
+
+  // Load tenant event from server when activeTenant changes
+  useEffect(() => {
+    const fetchTenantEvent = async () => {
+      try {
+        const res = await fetch('/api/events', {
+          headers: { 'x-user-id': activeTenant }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.events && data.events.length > 0) {
+            const evt = data.events[0];
+            setEventType(evt.title);
+            setEventDate(evt.targetDate);
+            if (evt.milestones && evt.milestones.length > 0) {
+              setMilestones(evt.milestones);
+            }
+            if (evt.vendors && evt.vendors.length > 0) {
+              setVendors(evt.vendors);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load event data for tenant in timeline:', err);
+      }
+    };
+    fetchTenantEvent();
+  }, [activeTenant]);
 
   // Drag and Drop Event Handlers
   const handleDragStart = (e: React.DragEvent, index: number) => {

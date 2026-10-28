@@ -17,6 +17,39 @@ import {
 export const ArchitectureBlueprintModule: React.FC = () => {
   const [activePhase, setActivePhase] = useState<number>(1);
   const [inspectedVector, setInspectedVector] = useState<string>('prompt_isolation');
+  const [powSolving, setPowSolving] = useState(false);
+  const [powResult, setPowResult] = useState<{ nonce: string; counter: number; solvedHash: string; duration: number } | null>(null);
+
+  const handleSolveChallenge = async () => {
+    setPowSolving(true);
+    try {
+      const res = await fetch('/api/security/challenge');
+      const { nonce, difficulty } = await res.json();
+      const start = performance.now();
+      let counter = 0;
+      let solvedHash = '';
+      const prefix = '0'.repeat(difficulty || 3);
+
+      while (counter < 50000) {
+        const candidate = `${nonce}${counter}`;
+        const msgBuffer = new TextEncoder().encode(candidate);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        if (hashHex.startsWith(prefix)) {
+          solvedHash = hashHex;
+          break;
+        }
+        counter++;
+      }
+      const duration = Math.round(performance.now() - start);
+      setPowResult({ nonce, counter, solvedHash, duration });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPowSolving(false);
+    }
+  };
 
   const phases = [
     {
@@ -201,16 +234,45 @@ export const ArchitectureBlueprintModule: React.FC = () => {
                   Client directly contacting <code className="text-indigo-300">googleapis.com</code> is strictly prohibited. The Express gateway injects <code className="text-indigo-300">process.env.GEMINI_API_KEY</code> on server-only channels.
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <div className="font-semibold text-white mb-1">Step 1.2: Token Bucket Anti-Scraping / Anti-DoS</div>
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="font-semibold text-white">Step 1.2: Turnstile & Anti-Bot Defense</div>
+                  <span className="text-[10px] text-cyan-400 font-mono">Proof-of-Work Challenge</span>
+                </div>
                 <p className="text-slate-400">
-                  Enforces a hard ceiling of 15 requests with refill rate of 0.5 tokens/sec per IP/User ID. WAF rejects zero-width hidden unicode characters and payloads &gt; 32KB.
+                  Enforces Cloudflare Turnstile / Proof-of-Work challenges on entry points to block bots before model invocation. Enforces a token bucket rate ceiling tied to authenticated user IDs and IPs.
                 </p>
+
+                {/* Interactive PoW Solver */}
+                <div className="mt-2 pt-2 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                  <button
+                    onClick={handleSolveChallenge}
+                    disabled={powSolving}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[11px] transition disabled:opacity-50"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>{powSolving ? 'Solving SHA-256 PoW...' : 'Test Turnstile PoW Challenge'}</span>
+                  </button>
+
+                  {powResult && (
+                    <div className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>Verified in {powResult.duration}ms (Iterations: {powResult.counter})</span>
+                    </div>
+                  )}
+                </div>
+
+                {powResult && (
+                  <div className="p-2 rounded bg-slate-900 border border-slate-800 font-mono text-[10px] text-slate-300 overflow-x-auto truncate">
+                    Hash: <span className="text-cyan-300">{powResult.solvedHash}</span>
+                  </div>
+                )}
               </div>
+
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                <div className="font-semibold text-white mb-1">Step 1.3: Row-Level Security (RLS) Isolation</div>
+                <div className="font-semibold text-white mb-1">Step 1.3: Zero-Trust Row-Level Security (RLS)</div>
                 <p className="text-slate-400">
-                  Database queries strictly inject <code className="text-cyan-300">WHERE user_id = current_user</code> to guarantee Tenant B cannot access Tenant A's budget or vendors.
+                  Database queries strictly inject <code className="text-cyan-300">WHERE user_id = current_user</code> to guarantee Tenant B cannot access Tenant A's budget or vendors even if an attacker tricks the model.
                 </p>
               </div>
             </div>
