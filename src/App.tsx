@@ -18,7 +18,8 @@ import { useAccessibility } from './hooks/useAccessibility';
 import { GatewayStatus, Milestone, EventCategory, Vendor, Venue, AssistantPlanResult } from './types';
 import { 
   GoogleUser, 
-  PRECONFIGURED_TEST_ACCOUNTS 
+  PRECONFIGURED_TEST_ACCOUNTS,
+  initAuth 
 } from './services/googleAuthService';
 import { 
   Layers, 
@@ -89,6 +90,23 @@ export default function App() {
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+    };
+  }, [announce]);
+
+  // Synchronize with Firebase Google Auth state listener
+  useEffect(() => {
+    const unsubscribe = initAuth(
+      (googleUser) => {
+        setCurrentUser(googleUser);
+        setActiveTenant(googleUser.tenantId);
+        announce(`Signed in to Google as ${googleUser.name}`);
+      },
+      () => {
+        // Retain current session or preconfigured account
+      }
+    );
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
     };
   }, [announce]);
 

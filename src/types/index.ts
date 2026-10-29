@@ -119,6 +119,19 @@ export interface VendorChecklistItem {
   notes?: string;
 }
 
+export interface GroundingSource {
+  title: string;
+  uri: string;
+}
+
+export interface SearchGroundingInfo {
+  enabled: boolean;
+  queries: string[];
+  sources: GroundingSource[];
+  liveInsights?: string[];
+  retrievedAt?: string;
+}
+
 export interface AssistantPlanResult {
   eventTitle: string;
   eventType: 'Wedding' | 'Birthday' | 'Community' | string;
@@ -131,6 +144,7 @@ export interface AssistantPlanResult {
   categories: EventCategory[];
   milestones: Milestone[];
   vendorChecklist: VendorChecklistItem[];
+  searchGrounding?: SearchGroundingInfo;
   securityGuarantee: {
     mathEngine: string;
     promptShield: string;

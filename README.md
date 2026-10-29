@@ -14,13 +14,15 @@
 ## 🌟 Key Features
 
 ### 1. 🤖 GenAI Planning Studio (`GenAIAssistantModule`)
+- **Microphone API Voice Dictation**: Hands-free voice dictation powered by the browser's Web Speech API and MediaDevices. Dictate event requirements, aesthetic vibes, custom notes, and consultant questions directly to the AI with real-time animated wave visualizers and streaming interim transcript display.
+- **Google Search Grounding (Live Web Intelligence)**: Integrated `{ googleSearch: {} }` grounding using modern `@google/genai` TypeScript SDK. Retrieves real-time venue pricing benchmarks, catering market trends ($/plate), and vendor seasonal booking availability directly from the live web. Displays interactive verified web sources, clickable citations, and executed search queries.
 - **Automated Event Concept Engineering**: Generates cohesive, bespoke event concepts tailored to guest count, budget, and vibe (Weddings, Birthdays, Community Events, Galas).
 - **Harmonized Color Palette**: Proposes hex swatches with specific decor/attire assignments (Dominant, Secondary, Accent, Neutral).
 - **Curated Culinary & Cocktail Program**: Generates custom multi-course food and signature drink pairings with dietary markers (Vegan, GF, Halal, Kosher).
 - **4-Phase Signature Guest Journey**: Timed sequencing from Arrival & Welcome to Main Program, Peak Highlight, and Farewell Favors.
 - **Bespoke Decor & Spatial Styling**: Actionable ideas for entryways, focal stages, and lounge corners with practical DIY vs. Rental cost-saving tips.
 - **One-Click Event Adoption**: Instantly commits the AI-generated master plan, budget categories, and vendor tasks to the secure database.
-- **Interactive AI Event Strategist**: Conversational copilot backed by Gemini 3.8 Flash with prompt hardening, XML context bounding, and instant inquiry chips.
+- **Interactive AI Event Strategist & Consultant**: Conversational copilot backed by Gemini 3.8 Flash with voice dictation, search grounding citations, prompt hardening, and instant inquiry chips.
 
 ### 2. 💰 Mathematical Financial & Budget Engine (`FinancialModule`)
 - **Interactive Recharts Visualizations**: Responsive Pie Chart and Category Breakdown Bar Charts displaying real-time budget distribution.
@@ -81,7 +83,11 @@
 ### 10. 🔄 Real-Time Remote Sync & Data Portability
 - **Header Sync Indicator**: Displays live synchronization status (`Synced Just Now`, `Syncing...`, or `Offline (Cached)`) with exact timestamp.
 - **Export Data Suite (`ExportDataModal`)**: Export complete event blueprints, budgets, and vendor checklists as formatted JSON or CSV files.
-- **Google OAuth Integration (`GoogleAuthModal`)**: Seamless account switching with pre-configured verified test profiles (`alokinfo.proict@gmail.com`, `alokinfo30@gmail.com`) and role-based permissions.
+- **Google OAuth Login & Multi-Account Switching (`GoogleAuthModal`)**:
+  - Live "Sign in with Google" flow via Firebase Authentication (`userinfo.email` and `userinfo.profile` scopes).
+  - Explicit **"Switch to Another Google Account"** option configuring `prompt: 'select_account'` so users can switch between multiple personal and corporate Google accounts at any time.
+  - In-memory token management with zero secrets stored in `localStorage` or `sessionStorage`.
+  - Instant role-based profile simulation (`Host`, `Guest`, `Administrator`) with pre-registered accounts (`alokinfo30@gmail.com`, `alokinfo.proict@gmail.com`).
 
 ---
 
